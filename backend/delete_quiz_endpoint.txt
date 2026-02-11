@@ -1,6 +1,0 @@
--- Add this to QuizController.java
-@DeleteMapping("/section/{sectionId}")
-public ResponseEntity<Void> deleteQuiz(@PathVariable String sectionId) {
-    quizService.deleteQuiz(sectionId);
-    return ResponseEntity.ok().build();
-}

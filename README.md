@@ -186,13 +186,19 @@ curl -X POST http://localhost:8080/api/v1/lessons/LESSON_ID/quiz/submit \
 online-learning-platform/
 ├── backend/                 # Spring Boot application
 │   ├── src/main/java/com/olp/
-│   │   ├── entity/         # JPA entities
-│   │   ├── repository/     # Data repositories
-│   │   ├── service/        # Business logic
-│   │   ├── controller/     # REST controllers
-│   │   ├── dto/           # Data transfer objects
-│   │   ├── config/        # Configuration classes
-│   │   └── security/      # Security components
+│   │   ├── domain/         # Domain-oriented modules
+│   │   │   ├── auth/      # Authentication & authorization
+│   │   │   ├── user/      # User management & profiles
+│   │   │   ├── course/    # Course & section management
+│   │   │   ├── lesson/    # Lesson management
+│   │   │   ├── quiz/      # Quiz & assessments
+│   │   │   ├── enrollment/ # Course enrollment
+│   │   │   ├── progress/  # Learning progress tracking
+│   │   │   └── certificate/ # Certificate generation
+│   │   └── shared/        # Shared components
+│   │       ├── config/    # Configuration classes
+│   │       ├── security/  # Security components (JWT)
+│   │       └── exception/ # Exception handling
 │   └── src/main/resources/
 │       ├── application.yml
 │       └── db/migration/  # Flyway migrations
@@ -207,6 +213,22 @@ online-learning-platform/
 ├── .env.example          # Environment variables template
 └── README.md
 ```
+
+## Architecture
+
+The backend follows a **domain-oriented architecture** where related components (entities, repositories, services, controllers, DTOs) are grouped by business domain rather than technical layers. This provides:
+
+- Better code organization and navigation
+- Clear domain boundaries
+- Easier team collaboration
+- Improved scalability and maintainability
+
+Each domain is self-contained with its own:
+- Entities (JPA models)
+- Repositories (data access)
+- Services (business logic)
+- Controllers (REST endpoints)
+- DTOs (request/response objects)
 
 ## Development Notes
 
