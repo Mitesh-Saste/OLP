@@ -3,10 +3,10 @@ import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, A
 import { useNavigate } from 'react-router-dom';
 import { School, AccountCircle } from '@mui/icons-material';
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleLogout = () => {
     localStorage.clear();

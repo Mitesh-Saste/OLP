@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Button, Chip, Box, Alert, CircularProgress } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseApi } from '../services/api';
-import { Course } from '../types';
 import { CheckCircle, Schedule, Person } from '@mui/icons-material';
 
-const CourseDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const CourseDetail = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
@@ -21,17 +20,17 @@ const CourseDetail: React.FC = () => {
     }
   }, [id]);
 
-  const checkEnrollment = async (courseId: string) => {
+  const checkEnrollment = async (courseId) => {
     try {
       const response = await courseApi.getEnrolledCourses();
-      const isEnrolled = response.data.content.some((c: Course) => c.id === courseId);
+      const isEnrolled = response.data.content.some((c) => c.id === courseId);
       setEnrolled(isEnrolled);
     } catch (error) {
       console.error('Failed to check enrollment');
     }
   };
 
-  const loadCourse = async (courseId: string) => {
+  const loadCourse = async (courseId) => {
     try {
       const response = await courseApi.getCourse(courseId);
       setCourse(response.data);
@@ -50,8 +49,8 @@ const CourseDetail: React.FC = () => {
       setEnrolled(true);
       setMessage('Successfully enrolled in the course!');
       window.location.reload();
-    } catch (error: any) {
-      setMessage(error.response?.data?.message || 'Failed to enroll in course');
+    } catch (error) {
+      setMessage(error.response.data.message || 'Failed to enroll in course');
     } finally {
       setEnrolling(false);
     }

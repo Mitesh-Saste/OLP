@@ -19,55 +19,31 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon
 } from '@mui/icons-material';
-import { Course } from '../types';
+
 import { courseApi, quizApi } from '../services/api';
 import QuizCreator from './QuizCreator';
 
-interface CourseEditorProps {
-  open: boolean;
-  onClose: () => void;
-  course: Course | null;
-  onSave: () => void;
-}
-
-interface Section {
-  id?: string;
-  title: string;
-  description: string;
-  sortOrder: number;
-  lessons: Lesson[];
-  pendingQuiz?: any;
-}
-
-interface Lesson {
-  id?: string;
-  title: string;
-  content: string;
-  videoUrl: string;
-  sortOrder: number;
-}
-
-const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSave }) => {
+const CourseEditor = ({ open, onClose, course, onSave }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
-  const [sections, setSections] = useState<Section[]>([]);
+  const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [quizDialogOpen, setQuizDialogOpen] = useState(false);
-  const [selectedSectionForQuiz, setSelectedSectionForQuiz] = useState<Section | null>(null);
-  const [existingQuizzes, setExistingQuizzes] = useState<Record<string, any>>({});
+  const [selectedSectionForQuiz, setSelectedSectionForQuiz] = useState(null);
+  const [existingQuizzes, setExistingQuizzes] = useState({});
 
   useEffect(() => {
     if (course) {
       setTitle(course.title);
       setDescription(course.description);
       setTags(course.tags.join(', '));
-      setSections(course.sections?.map(s => ({
+      setSections(course.sections.map(s => ({
         id: s.id,
         title: s.title,
         description: s.description || '',
         sortOrder: s.sortOrder,
-        lessons: s.lessons?.map(l => ({
+        lessons: s.lessons.map(l => ({
           id: l.id,
           title: l.title,
           content: l.content,
@@ -80,13 +56,13 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
   }, [course]);
 
   const loadExistingQuizzes = async () => {
-    if (!course?.sections) return;
-    const quizzes: Record<string, any> = {};
+    if (!course.sections) return;
+    const quizzes = {};
     for (const section of course.sections) {
       try {
-        const response = await quizApi.getQuiz(section.id!);
+        const response = await quizApi.getQuiz(section.id);
         if (response.data) {
-          quizzes[section.id!] = response.data;
+          quizzes[section.id] = response.data;
         }
       } catch (error) {
         // No quiz for this section
@@ -120,7 +96,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
           for (const existingLesson of existingSection.lessons) {
             const stillExists = currentSection.lessons.find(l => l.id === existingLesson.id);
             if (!stillExists) {
-              await courseApi.deleteLesson(course.id, existingLesson.id!);
+              await courseApi.deleteLesson(course.id, existingLesson.id);
             }
           }
         }
@@ -140,10 +116,10 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
           
           // Reload course to get the new section ID
           const updatedCourse = await courseApi.getCourse(course.id);
-          const newSection = updatedCourse.data.sections?.find((s: any) => 
+          const newSection = updatedCourse.data.sections.find((s) => 
             s.title === section.title && s.sortOrder === section.sortOrder
           );
-          sectionId = newSection?.id;
+          sectionId = newSection.id;
           
           // Create pending quiz if exists
           if (section.pendingQuiz && sectionId) {
@@ -168,7 +144,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
                 content: lesson.content,
                 videoUrl: lesson.videoUrl,
                 sortOrder: lesson.sortOrder,
-                sectionId: sectionId!
+                sectionId: sectionId
               });
             } else if (lesson.id) {
               // Existing lesson - update it
@@ -177,7 +153,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
                 content: lesson.content,
                 videoUrl: lesson.videoUrl,
                 sortOrder: lesson.sortOrder,
-                sectionId: sectionId!
+                sectionId: sectionId
               });
             }
           }
@@ -188,17 +164,17 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
       for (const existingSection of existingSections) {
         const stillExists = currentSections.find(s => s.id === existingSection.id);
         if (!stillExists) {
-          await courseApi.deleteSection(course.id, existingSection.id!);
+          await courseApi.deleteSection(course.id, existingSection.id);
         }
       }
       
       alert('Course updated successfully!');
       onSave();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to update course:', error);
-      console.error('Error response:', error.response?.data);
-      alert(`Failed to save changes: ${error.response?.data?.message || error.message}`);
+      console.error('Error response:', error.response.data);
+      alert(`Failed to save changes: ${error.response.data.message || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -214,17 +190,17 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
     }]);
   };
 
-  const updateSection = (index: number, field: keyof Section, value: any) => {
+  const updateSection = (index, field, value) => {
     const newSections = [...sections];
     newSections[index] = { ...newSections[index], [field]: value };
     setSections(newSections);
   };
 
-  const deleteSection = (index: number) => {
+  const deleteSection = (index) => {
     setSections(sections.filter((_, i) => i !== index));
   };
 
-  const addLesson = (sectionIndex: number) => {
+  const addLesson = (sectionIndex) => {
     const newSections = [...sections];
     newSections[sectionIndex].lessons.push({
       id: `temp-${Date.now()}-${Math.random()}`,
@@ -236,7 +212,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
     setSections(newSections);
   };
 
-  const updateLesson = (sectionIndex: number, lessonIndex: number, field: keyof Lesson, value: any) => {
+  const updateLesson = (sectionIndex, lessonIndex, field, value) => {
     const newSections = [...sections];
     newSections[sectionIndex].lessons[lessonIndex] = {
       ...newSections[sectionIndex].lessons[lessonIndex],
@@ -245,19 +221,19 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
     setSections(newSections);
   };
 
-  const deleteLesson = (sectionIndex: number, lessonIndex: number) => {
+  const deleteLesson = (sectionIndex, lessonIndex) => {
     const newSections = [...sections];
     newSections[sectionIndex].lessons = newSections[sectionIndex].lessons.filter((_, i) => i !== lessonIndex);
     setSections(newSections);
   };
 
-  const handleAddQuiz = (sectionIndex: number) => {
+  const handleAddQuiz = (sectionIndex) => {
     const section = sections[sectionIndex];
     setSelectedSectionForQuiz(section);
     setQuizDialogOpen(true);
   };
 
-  const handleDeleteQuiz = async (sectionIndex: number) => {
+  const handleDeleteQuiz = async (sectionIndex) => {
     const section = sections[sectionIndex];
     if (window.confirm('Are you sure you want to delete this quiz?')) {
       if (section.pendingQuiz) {
@@ -272,8 +248,8 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
           await quizApi.deleteQuiz(section.id);
           alert('Quiz deleted successfully!');
           loadExistingQuizzes();
-        } catch (error: any) {
-          alert(`Failed to delete quiz: ${error.response?.data?.message || error.message}`);
+        } catch (error) {
+          alert(`Failed to delete quiz: ${error.response.data.message || error.message}`);
         }
       }
     }
@@ -281,7 +257,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Edit Course: {course?.title}</DialogTitle>
+      <DialogTitle>Edit Course: {course?.title || 'Loading...'}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <TextField
@@ -327,7 +303,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
                     e.stopPropagation();
                     deleteSection(sectionIndex);
                   }}
-                  sx={{ ml: 'auto', mr: 1 }}
+                  sx={{ ml: 'auto' }}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -412,7 +388,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
                             accept="video/*"
                             hidden
                             onChange={(e) => {
-                              const file = e.target.files?.[0];
+                              const file = e.target.files[0];
                               if (file) {
                                 const formData = new FormData();
                                 formData.append('file', file);
@@ -456,7 +432,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
                       </Box>
                       <Typography variant="caption" color="text.secondary">{section.pendingQuiz.questions.length} questions</Typography>
                       <Box sx={{ mt: 1 }}>
-                        {section.pendingQuiz.questions.map((q: any, idx: number) => (
+                        {section.pendingQuiz.questions.map((q, idx) => (
                           <Typography key={idx} variant="caption" display="block" sx={{ ml: 2 }}>• {q.question}</Typography>
                         ))}
                       </Box>
@@ -471,9 +447,9 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Box>
-                      <Typography variant="caption" color="text.secondary">{existingQuizzes[section.id].questions?.length || 0} questions</Typography>
+                      <Typography variant="caption" color="text.secondary">{existingQuizzes[section.id].questions.length || 0} questions</Typography>
                       <Box sx={{ mt: 1 }}>
-                        {existingQuizzes[section.id].questions?.map((q: any, idx: number) => (
+                        {existingQuizzes[section.id].questions.map((q, idx) => (
                           <Typography key={idx} variant="caption" display="block" sx={{ ml: 2 }}>• {q.question}</Typography>
                         ))}
                       </Box>
@@ -501,7 +477,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
           }}
           onQuizCreated={(quizData) => {
             // If section is not saved yet, store quiz data to create after section is saved
-            if (selectedSectionForQuiz.id?.startsWith('temp-')) {
+            if (selectedSectionForQuiz.id.startsWith('temp-')) {
               const sectionIndex = sections.findIndex(s => s.id === selectedSectionForQuiz.id);
               if (sectionIndex !== -1) {
                 const newSections = [...sections];
@@ -512,12 +488,12 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
             }
             setQuizDialogOpen(false);
             setSelectedSectionForQuiz(null);
-            if (!selectedSectionForQuiz.id?.startsWith('temp-')) {
+            if (!selectedSectionForQuiz.id.startsWith('temp-')) {
               loadExistingQuizzes();
               onSave();
             }
           }}
-          sectionId={selectedSectionForQuiz.id!}
+          sectionId={selectedSectionForQuiz.id}
           sectionTitle={selectedSectionForQuiz.title}
           existingQuiz={selectedSectionForQuiz.pendingQuiz || (selectedSectionForQuiz.id && existingQuizzes[selectedSectionForQuiz.id])}
         />
@@ -527,3 +503,4 @@ const CourseEditor: React.FC<CourseEditorProps> = ({ open, onClose, course, onSa
 };
 
 export default CourseEditor;
+

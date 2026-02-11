@@ -21,21 +21,19 @@ import {
 import { ExpandMore, PlayArrow, CheckCircle } from '@mui/icons-material';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { courseApi, progressApi, quizApi } from '../services/api';
-import { Course } from '../types';
-
-const CourseLearning: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const CourseLearning = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedLesson, setSelectedLesson] = useState<any>(null);
-  const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
-  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
-  const [quizAttempts, setQuizAttempts] = useState<Record<string, any>>({});
-  const [progress, setProgress] = useState<any>(null);
-  const [sectionQuizzes, setSectionQuizzes] = useState<Record<string, any>>({});
-  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizAttempts, setQuizAttempts] = useState({});
+  const [progress, setProgress] = useState(null);
+  const [sectionQuizzes, setSectionQuizzes] = useState({});
+  const [completedLessons, setCompletedLessons] = useState(new Set());
 
   useEffect(() => {
     if (id) {
@@ -57,7 +55,7 @@ const CourseLearning: React.FC = () => {
     }
   }, [location.pathname]);
 
-  const loadCourse = async (courseId: string) => {
+  const loadCourse = async (courseId) => {
     try {
       const response = await courseApi.getCourse(courseId);
       setCourse(response.data);
@@ -68,7 +66,7 @@ const CourseLearning: React.FC = () => {
     }
   };
 
-  const loadProgress = async (courseId: string) => {
+  const loadProgress = async (courseId) => {
     try {
       const response = await progressApi.getCourseProgress(courseId);
       setProgress(response.data);
@@ -81,16 +79,16 @@ const CourseLearning: React.FC = () => {
   };
 
   const loadSectionQuizzes = async () => {
-    if (!course?.sections) return;
+    if (!course.sections) return;
     
-    const quizzes: Record<string, any> = {};
-    const attempts: Record<string, any> = {};
+    const quizzes = {};
+    const attempts = {};
     
     for (const section of course.sections) {
       try {
-        const response = await quizApi.getQuiz(section.id!);
+        const response = await quizApi.getQuiz(section.id);
         if (response.data) {
-          quizzes[section.id!] = response.data;
+          quizzes[section.id] = response.data;
           
           try {
             const statusResponse = await quizApi.getQuizStatus(response.data.id);
@@ -109,17 +107,17 @@ const CourseLearning: React.FC = () => {
     setQuizAttempts(attempts);
   };
 
-  const handleLessonClick = (lesson: any) => {
+  const handleLessonClick = (lesson) => {
     setSelectedLesson(lesson);
     setSelectedQuiz(null);
   };
 
-  const handleQuizClick = (quiz: any) => {
+  const handleQuizClick = (quiz) => {
     setSelectedQuiz(quiz);
     setSelectedLesson(null);
   };
 
-  const handleQuizAnswerChange = (questionId: string, optionId: string) => {
+  const handleQuizAnswerChange = (questionId, optionId) => {
     setQuizAnswers(prev => ({
       ...prev,
       [questionId]: optionId
@@ -142,7 +140,7 @@ const CourseLearning: React.FC = () => {
     }
   };
 
-  const getQuizStatus = (quiz: any) => {
+  const getQuizStatus = (quiz) => {
     const attempt = quizAttempts[quiz.id];
     console.log('Getting status for quiz', quiz.id, 'attempt:', attempt);
     if (!attempt || attempt.score === undefined) return { status: 'Not Attempted', color: 'default' };
@@ -150,7 +148,7 @@ const CourseLearning: React.FC = () => {
     return { status: 'Failed', color: 'error' };
   };
 
-  const markLessonComplete = async (lessonId: string) => {
+  const markLessonComplete = async (lessonId) => {
     try {
       await progressApi.markLessonComplete(lessonId);
       setCompletedLessons(prev => new Set(prev).add(lessonId));
@@ -162,21 +160,21 @@ const CourseLearning: React.FC = () => {
     }
   };
 
-  const isLessonCompleted = (lessonId: string) => completedLessons.has(lessonId);
+  const isLessonCompleted = (lessonId) => completedLessons.has(lessonId);
 
-  const isSectionCompleted = (section: any) => {
+  const isSectionCompleted = (section) => {
     if (!section.lessons || section.lessons.length === 0) return false;
-    return section.lessons.every((lesson: any) => isLessonCompleted(lesson.id));
+    return section.lessons.every((lesson) => isLessonCompleted(lesson.id));
   };
 
   const selectFirstIncompleteLesson = () => {
-    if (!course?.sections || selectedLesson || selectedQuiz) return;
+    if (!course.sections || selectedLesson || selectedQuiz) return;
     
     // Find first incomplete lesson
     for (const section of course.sections) {
       if (section.lessons) {
         for (const lesson of section.lessons) {
-          if (!isLessonCompleted(lesson.id!)) {
+          if (!isLessonCompleted(lesson.id)) {
             setSelectedLesson(lesson);
             return;
           }
@@ -185,7 +183,7 @@ const CourseLearning: React.FC = () => {
     }
     
     // If all lessons completed or no progress yet, select first lesson
-    if (course.sections[0]?.lessons?.[0]) {
+    if (course.sections[0].lessons[0]) {
       setSelectedLesson(course.sections[0].lessons[0]);
     }
   };
@@ -238,7 +236,7 @@ const CourseLearning: React.FC = () => {
               </Box>
 
               {/* Sections and Lessons */}
-              {course.sections?.map((section, sectionIndex) => (
+              {course.sections.map((section, sectionIndex) => (
                 <Accordion key={section.id} defaultExpanded={sectionIndex === 0}>
                   <AccordionSummary expandIcon={<ExpandMore />}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
@@ -253,11 +251,11 @@ const CourseLearning: React.FC = () => {
                       </Typography>
                     )}
                     <List dense>
-                      {section.lessons?.map((lesson) => (
+                      {section.lessons.map((lesson) => (
                         <ListItem key={lesson.id} disablePadding>
                           <ListItemButton
                             onClick={() => handleLessonClick(lesson)}
-                            selected={selectedLesson?.id === lesson.id}
+                            selected={selectedLesson.id === lesson.id}
                           >
                             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                               {lesson.videoUrl ? <PlayArrow sx={{ mr: 1 }} /> : <CheckCircle sx={{ mr: 1 }} />}
@@ -270,23 +268,23 @@ const CourseLearning: React.FC = () => {
                         </ListItem>
                       ))}
                       
-                      {sectionQuizzes[section.id!] && (
+                      {sectionQuizzes[section.id] && (
                         <ListItem disablePadding>
                           <ListItemButton
-                            onClick={() => handleQuizClick(sectionQuizzes[section.id!])}
-                            selected={selectedQuiz?.id === sectionQuizzes[section.id!].id}
+                            onClick={() => handleQuizClick(sectionQuizzes[section.id])}
+                            selected={selectedQuiz.id === sectionQuizzes[section.id].id}
                           >
                             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <CheckCircle sx={{ mr: 1, color: 'primary.main' }} />
                                 <ListItemText 
-                                  primary={`Quiz: ${sectionQuizzes[section.id!].title}`}
+                                  primary={`Quiz: ${sectionQuizzes[section.id].title}`}
                                   primaryTypographyProps={{ variant: 'body2', fontWeight: 'bold' }}
                                 />
                               </Box>
                               <Chip 
-                                label={getQuizStatus(sectionQuizzes[section.id!]).status}
-                                color={getQuizStatus(sectionQuizzes[section.id!]).color as any}
+                                label={getQuizStatus(sectionQuizzes[section.id]).status}
+                                color={getQuizStatus(sectionQuizzes[section.id]).color }
                                 size="small"
                               />
                             </Box>
@@ -353,7 +351,7 @@ const CourseLearning: React.FC = () => {
                       '&:disabled': { color: 'white' }
                     }}
                   >
-                    {isLessonCompleted(selectedLesson.id) ? 'Completed' : 'Mark as Complete'}
+                    {isLessonCompleted(selectedLesson.id) ? 'Completed' : 'Mark '}
                   </Button>
                 </Box>
               </CardContent>
@@ -365,7 +363,7 @@ const CourseLearning: React.FC = () => {
                   <Typography variant="h4">{selectedQuiz.title}</Typography>
                   <Chip 
                     label={getQuizStatus(selectedQuiz).status}
-                    color={getQuizStatus(selectedQuiz).color as any}
+                    color={getQuizStatus(selectedQuiz).color }
                   />
                 </Box>
                 
@@ -373,12 +371,12 @@ const CourseLearning: React.FC = () => {
                   Complete this quiz to finish the section. You need 60% or higher to pass.
                 </Typography>
                 
-                {selectedQuiz.questions?.map((question: any, index: number) => (
+                {selectedQuiz.questions.map((question, index) => (
                   <Box key={question.id} sx={{ mb: 3, p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
                     <Typography variant="h6" gutterBottom>
                       {index + 1}. {question.question}
                     </Typography>
-                    {question.options?.map((option: any) => (
+                    {question.options.map((option) => (
                       <Box key={option.id} sx={{ ml: 2, mb: 1 }}>
                         <label>
                           <input
@@ -412,7 +410,7 @@ const CourseLearning: React.FC = () => {
                     e.preventDefault();
                     submitQuiz();
                   }}
-                  disabled={Object.keys(quizAnswers).length !== selectedQuiz.questions?.length}
+                  disabled={Object.keys(quizAnswers).length !== selectedQuiz.questions.length}
                 >
                   {quizAttempts[selectedQuiz.id] ? 'Retake Quiz' : 'Submit Quiz'}
                 </Button>

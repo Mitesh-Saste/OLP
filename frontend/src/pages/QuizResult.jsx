@@ -3,7 +3,7 @@ import { Container, Card, CardContent, Typography, Box, Button, Chip } from '@mu
 import { CheckCircle, Cancel, EmojiEvents } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const QuizResult: React.FC = () => {
+const QuizResult = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { score, correctAnswers, totalQuestions, passed, attemptCount, courseId } = location.state || {};
@@ -80,3 +80,4 @@ const QuizResult: React.FC = () => {
 };
 
 export default QuizResult;
+

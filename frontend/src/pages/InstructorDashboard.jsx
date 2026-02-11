@@ -20,17 +20,12 @@ import {
   Tab
 } from '@mui/material';
 import { courseApi } from '../services/api';
-import { Course } from '../types';
 import CreateCourseDialog from '../components/CreateCourseDialog';
 import CourseEditor from '../components/CourseEditor';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
 
-function TabPanel(props: TabPanelProps) {
+
+function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
     <div role="tabpanel" hidden={value !== index} {...other}>
@@ -39,13 +34,13 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const InstructorDashboard: React.FC = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [students, setStudents] = useState<any[]>([]);
+const InstructorDashboard = () => {
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [students, setStudents] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openEditor, setOpenEditor] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [editingCourse, setEditingCourse] = useState(null);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
@@ -61,7 +56,7 @@ const InstructorDashboard: React.FC = () => {
     }
   };
 
-  const loadStudents = async (courseId: string) => {
+  const loadStudents = async (courseId) => {
     try {
       const response = await courseApi.getCourseStudents(courseId);
       setStudents(response.data.content);
@@ -70,9 +65,9 @@ const InstructorDashboard: React.FC = () => {
     }
   };
 
-  const handleCreateCourse = async (courseData: any) => {
+  const handleCreateCourse = async (courseData) => {
     try {
-      const tags = courseData.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
+      const tags = courseData.tags.split(',').map((tag) => tag.trim()).filter((tag) => tag);
       const response = await courseApi.createCourse({
         title: courseData.title,
         description: courseData.description,
@@ -86,7 +81,7 @@ const InstructorDashboard: React.FC = () => {
       for (const section of courseData.sections) {
         if (section.quiz) {
           const createdCourse = await courseApi.getCourse(courseId);
-          const createdSection = createdCourse.data.sections?.find((s: any) => 
+          const createdSection = createdCourse.data.sections.find((s) => 
             s.title === section.title && s.sortOrder === section.sortOrder
           );
           if (createdSection) {
@@ -109,13 +104,13 @@ const InstructorDashboard: React.FC = () => {
     }
   };
 
-  const handleViewStudents = (course: Course) => {
+  const handleViewStudents = (course) => {
     setSelectedCourse(course);
     loadStudents(course.id);
     setTabValue(1);
   };
 
-  const handlePublishCourse = async (courseId: string) => {
+  const handlePublishCourse = async (courseId) => {
     try {
       await courseApi.publishCourse(courseId);
       loadCourses(); // Reload to show updated status
@@ -124,20 +119,20 @@ const InstructorDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteCourse = async (courseId: string, courseTitle: string) => {
+  const handleDeleteCourse = async (courseId, courseTitle) => {
     if (window.confirm(`Are you sure you want to delete "${courseTitle}"? This will remove all sections, lessons, and student enrollments.`)) {
       try {
         await courseApi.deleteCourse(courseId);
         alert('Course deleted successfully!');
         loadCourses(); // Reload to show updated list
-      } catch (error: any) {
+      } catch (error) {
         console.error('Failed to delete course:', error);
-        alert(`Failed to delete course: ${error.response?.data?.message || error.message}`);
+        alert(`Failed to delete course: ${error.response.data.message || error.message}`);
       }
     }
   };
 
-  const handleEditCourse = (course: Course) => {
+  const handleEditCourse = (course) => {
     setEditingCourse(course);
     setOpenEditor(true);
   };

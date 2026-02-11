@@ -4,12 +4,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { School } from '@mui/icons-material';
 
-const Register: React.FC = () => {
+const Register = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'STUDENT' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await authApi.register(formData);
@@ -21,8 +21,8 @@ const Register: React.FC = () => {
       localStorage.setItem('role', role);
       
       navigate('/');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err) {
+      setError(err.response.data.message || 'Registration failed');
     }
   };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Card, CardContent, Skeleton, Grid } from '@mui/material';
 
-export const CourseCardSkeleton: React.FC = () => (
+export const CourseCardSkeleton = () => (
   <Card sx={{ height: '100%' }}>
     <Skeleton variant="rectangular" height={200} animation="wave" />
     <CardContent>
@@ -17,7 +17,7 @@ export const CourseCardSkeleton: React.FC = () => (
   </Card>
 );
 
-export const CourseGridSkeleton: React.FC = () => (
+export const CourseGridSkeleton = () => (
   <Grid container spacing={3}>
     {[1, 2, 3, 4, 5, 6].map((i) => (
       <Grid item xs={12} sm={6} md={4} key={i}>
@@ -26,3 +26,4 @@ export const CourseGridSkeleton: React.FC = () => (
     ))}
   </Grid>
 );
+

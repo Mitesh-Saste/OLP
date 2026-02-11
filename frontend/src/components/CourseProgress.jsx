@@ -3,19 +3,12 @@ import { Typography, LinearProgress, Box } from '@mui/material';
 import { progressApi } from '../services/api';
 import { CheckCircle } from '@mui/icons-material';
 
-interface ProgressData {
-  courseId: string;
-  completedLessons: number;
-  totalLessons: number;
-  progressPercent: number;
-}
 
-interface CourseProgressProps {
-  courseId: string;
-}
 
-const CourseProgress: React.FC<CourseProgressProps> = ({ courseId }) => {
-  const [progress, setProgress] = useState<ProgressData | null>(null);
+
+
+const CourseProgress = ({ courseId }) => {
+  const [progress, setProgress] = useState(null);
 
   useEffect(() => {
     loadProgress();

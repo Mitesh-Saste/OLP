@@ -2,17 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, CardActions, Grid, Button, Chip, Box, Tabs, Tab, LinearProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { courseApi, certificateApi } from '../services/api';
-import { Course } from '../types';
 import CourseProgress from '../components/CourseProgress';
 import { PlayCircleOutline, MenuBook, EmojiEvents, CheckCircle } from '@mui/icons-material';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
 
-function TabPanel(props: TabPanelProps) {
+
+function TabPanel(props) {
   const { children, value, index } = props;
   return (
     <div role="tabpanel" hidden={value !== index}>
@@ -21,10 +16,10 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const MyCourses: React.FC = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
+const MyCourses = () => {
+  const [courses, setCourses] = useState([]);
   const [tabValue, setTabValue] = useState(0);
-  const [certificates, setCertificates] = useState<Record<string, any>>({});
+  const [certificates, setCertificates] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,8 +36,8 @@ const MyCourses: React.FC = () => {
     }
   };
 
-  const checkCertificates = async (courseList: Course[]) => {
-    const certs: Record<string, any> = {};
+  const checkCertificates = async (courseList) => {
+    const certs = {};
     for (const course of courseList) {
       try {
         console.log('Checking certificate for course:', course.id);
@@ -51,8 +46,8 @@ const MyCourses: React.FC = () => {
         if (response.data.eligible) {
           certs[course.id] = response.data;
         }
-      } catch (error: any) {
-        console.log('Certificate error for course', course.id, ':', error.response?.data || error.message);
+      } catch (error) {
+        console.log('Certificate error for course', course.id, ':', error.response.data || error.message);
       }
     }
     console.log('All certificates:', certs);
@@ -92,7 +87,7 @@ const MyCourses: React.FC = () => {
                       <CardContent sx={{ flexGrow: 1 }}>
                         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>{course.title}</Typography>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{course.description}</Typography>
-                        <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                           {course.tags.map((tag) => (
                             <Chip key={tag} label={tag} size="small" sx={{ bgcolor: 'primary.50' }} />
                           ))}

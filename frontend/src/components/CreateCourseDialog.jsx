@@ -14,43 +14,20 @@ import {
   AccordionDetails
 } from '@mui/material';
 import { Add, Delete, ExpandMore } from '@mui/icons-material';
-import { Section, Lesson } from '../types';
 import QuizCreator from './QuizCreator';
 
-interface CourseFormData {
-  title: string;
-  description: string;
-  tags: string;
-  sections: Section[];
-}
-
-interface Quiz {
-  title: string;
-  questions: {
-    question: string;
-    options: string[];
-    correctAnswer: string;
-  }[];
-}
-
-interface CreateCourseDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (courseData: CourseFormData) => void;
-}
-
-const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, onSubmit }) => {
-  const [courseForm, setCourseForm] = useState<CourseFormData>({
+const CreateCourseDialog = ({ open, onClose, onSubmit }) => {
+  const [courseForm, setCourseForm] = useState({
     title: '',
     description: '',
     tags: '',
     sections: []
   });
   const [quizDialogOpen, setQuizDialogOpen] = useState(false);
-  const [selectedSectionIndex, setSelectedSectionIndex] = useState<number | null>(null);
+  const [selectedSectionIndex, setSelectedSectionIndex] = useState(null);
 
   const addSection = () => {
-    const newSection: Section = {
+    const newSection = {
       id: `temp-${Date.now()}`,
       courseId: '',
       title: '',
@@ -65,26 +42,26 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, 
     });
   };
 
-  const updateSection = (index: number, field: keyof Section, value: string) => {
+  const updateSection = (index, field, value) => {
     const updatedSections = [...courseForm.sections];
     updatedSections[index] = { ...updatedSections[index], [field]: value };
     setCourseForm({ ...courseForm, sections: updatedSections });
   };
 
-  const removeSection = (index: number) => {
+  const removeSection = (index) => {
     const updatedSections = courseForm.sections.filter((_, i) => i !== index);
     setCourseForm({ ...courseForm, sections: updatedSections });
   };
 
-  const addLesson = (sectionIndex: number) => {
-    const newLesson: Lesson = {
+  const addLesson = (sectionIndex) => {
+    const newLesson = {
       id: `temp-${Date.now()}`,
       courseId: '',
       sectionId: courseForm.sections[sectionIndex].id,
       title: '',
       content: '',
       videoUrl: '',
-      sortOrder: courseForm.sections[sectionIndex].lessons?.length || 0
+      sortOrder: courseForm.sections[sectionIndex].lessons.length || 0
     };
     
     const updatedSections = [...courseForm.sections];
@@ -92,7 +69,7 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, 
     setCourseForm({ ...courseForm, sections: updatedSections });
   };
 
-  const updateLesson = (sectionIndex: number, lessonIndex: number, field: keyof Lesson, value: string) => {
+  const updateLesson = (sectionIndex, lessonIndex, field, value) => {
     const updatedSections = [...courseForm.sections];
     const lessons = updatedSections[sectionIndex].lessons || [];
     lessons[lessonIndex] = { ...lessons[lessonIndex], [field]: value };
@@ -100,18 +77,18 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, 
     setCourseForm({ ...courseForm, sections: updatedSections });
   };
 
-  const removeLesson = (sectionIndex: number, lessonIndex: number) => {
+  const removeLesson = (sectionIndex, lessonIndex) => {
     const updatedSections = [...courseForm.sections];
-    updatedSections[sectionIndex].lessons = updatedSections[sectionIndex].lessons?.filter((_, i) => i !== lessonIndex) || [];
+    updatedSections[sectionIndex].lessons = updatedSections[sectionIndex].lessons.filter((_, i) => i !== lessonIndex) || [];
     setCourseForm({ ...courseForm, sections: updatedSections });
   };
 
-  const addQuiz = (sectionIndex: number) => {
+  const addQuiz = (sectionIndex) => {
     setSelectedSectionIndex(sectionIndex);
     setQuizDialogOpen(true);
   };
 
-  const removeQuiz = (sectionIndex: number) => {
+  const removeQuiz = (sectionIndex) => {
     const updatedSections = [...courseForm.sections];
     updatedSections[sectionIndex].quiz = null;
     setCourseForm({ ...courseForm, sections: updatedSections });
@@ -220,7 +197,7 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, 
                 </Button>
               </Box>
 
-              {section.lessons?.map((lesson, lessonIndex) => (
+              {section.lessons.map((lesson, lessonIndex) => (
                 <Box key={lesson.id} sx={{ border: 1, borderColor: 'grey.300', borderRadius: 1, p: 2, mb: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="subtitle2">Lesson {lessonIndex + 1}</Typography>
@@ -269,7 +246,7 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, 
                       hidden
                       accept="video/*"
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
+                        const file = e.target.files[0];
                         if (file) {
                           const formData = new FormData();
                           formData.append('file', file);
@@ -308,7 +285,7 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, 
                   </Box>
                   <Typography variant="caption" color="text.secondary">{section.quiz.questions.length} questions</Typography>
                   <Box sx={{ mt: 1 }}>
-                    {section.quiz.questions.map((q: any, idx: number) => (
+                    {section.quiz.questions.map((q, idx) => (
                       <Typography key={idx} variant="caption" display="block" sx={{ ml: 2 }}>• {q.question}</Typography>
                     ))}
                   </Box>
@@ -334,12 +311,12 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({ open, onClose, 
           }}
           onQuizCreated={(quizData) => {
             const updatedSections = [...courseForm.sections];
-            updatedSections[selectedSectionIndex!].quiz = quizData;
+            updatedSections[selectedSectionIndex].quiz = quizData;
             setCourseForm({ ...courseForm, sections: updatedSections });
             setQuizDialogOpen(false);
             setSelectedSectionIndex(null);
           }}
-          sectionId={courseForm.sections[selectedSectionIndex].id!}
+          sectionId={courseForm.sections[selectedSectionIndex].id}
           sectionTitle={courseForm.sections[selectedSectionIndex].title}
           existingQuiz={courseForm.sections[selectedSectionIndex].quiz}
         />

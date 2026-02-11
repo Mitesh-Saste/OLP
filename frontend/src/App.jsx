@@ -84,12 +84,12 @@ const theme = createTheme({
   },
 });
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('accessToken');
   return token ? <>{children}</> : <Navigate to="/login" />;
 };
 
-const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const PageTransition = ({ children }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}

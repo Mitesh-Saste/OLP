@@ -15,28 +15,18 @@ import {
 import { Add, Edit, Delete } from '@mui/icons-material';
 import { courseService } from '../services/api';
 
-interface Lesson {
-  id?: string;
-  title: string;
-  content: string;
-  videoUrl: string;
-  sortOrder: number;
-}
 
-interface LessonManagerProps {
-  courseId: string;
-  lessons: Lesson[];
-  onLessonsUpdate: () => void;
-}
 
-export const LessonManager: React.FC<LessonManagerProps> = ({
+
+
+export const LessonManager = ({
   courseId,
   lessons,
   onLessonsUpdate,
 }) => {
   const [open, setOpen] = useState(false);
-  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
-  const [formData, setFormData] = useState<Lesson>({
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [formData, setFormData] = useState({
     title: '',
     content: '',
     videoUrl: '',
@@ -45,7 +35,7 @@ export const LessonManager: React.FC<LessonManagerProps> = ({
 
   const handleSubmit = async () => {
     try {
-      if (editingLesson?.id) {
+      if (editingLesson.id) {
         await courseService.updateLesson(courseId, editingLesson.id, formData);
       } else {
         await courseService.addLesson(courseId, formData);
@@ -57,7 +47,7 @@ export const LessonManager: React.FC<LessonManagerProps> = ({
     }
   };
 
-  const handleDelete = async (lessonId: string) => {
+  const handleDelete = async (lessonId) => {
     try {
       await courseService.deleteLesson(courseId, lessonId);
       onLessonsUpdate();
@@ -115,7 +105,7 @@ export const LessonManager: React.FC<LessonManagerProps> = ({
                 <IconButton onClick={() => handleEdit(lesson)}>
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleDelete(lesson.id!)}>
+                <IconButton onClick={() => handleDelete(lesson.id)}>
                   <Delete />
                 </IconButton>
               </Box>

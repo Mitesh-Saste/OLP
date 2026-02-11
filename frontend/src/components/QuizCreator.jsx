@@ -14,24 +14,13 @@ import {
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { quizApi } from '../services/api';
 
-interface QuizCreatorProps {
-  open: boolean;
-  onClose: () => void;
-  onQuizCreated?: (quizData?: any) => void;
-  sectionId: string;
-  sectionTitle: string;
-  existingQuiz?: any;
-}
 
-interface Question {
-  question: string;
-  options: string[];
-  correctAnswer: string;
-}
 
-const QuizCreator: React.FC<QuizCreatorProps> = ({ open, onClose, onQuizCreated, sectionId, sectionTitle, existingQuiz }) => {
+
+
+const QuizCreator = ({ open, onClose, onQuizCreated, sectionId, sectionTitle, existingQuiz }) => {
   const [title, setTitle] = useState(`${sectionTitle} Quiz`);
-  const [questions, setQuestions] = useState<Question[]>([
+  const [questions, setQuestions] = useState([
     { question: '', options: ['', '', '', ''], correctAnswer: '' }
   ]);
   const [loading, setLoading] = useState(false);
@@ -41,9 +30,9 @@ const QuizCreator: React.FC<QuizCreatorProps> = ({ open, onClose, onQuizCreated,
     if (existingQuiz) {
       setIsEditMode(true);
       setTitle(existingQuiz.title);
-      setQuestions(existingQuiz.questions.map((q: any) => ({
+      setQuestions(existingQuiz.questions.map((q) => ({
         question: q.question,
-        options: q.options?.map((o: any) => o.text || o) || ['', '', '', ''],
+        options: q.options.map((o) => o.text || o) || ['', '', '', ''],
         correctAnswer: q.correctAnswer
       })));
     } else {
@@ -57,17 +46,17 @@ const QuizCreator: React.FC<QuizCreatorProps> = ({ open, onClose, onQuizCreated,
     setQuestions([...questions, { question: '', options: ['', '', '', ''], correctAnswer: '' }]);
   };
 
-  const removeQuestion = (index: number) => {
+  const removeQuestion = (index) => {
     setQuestions(questions.filter((_, i) => i !== index));
   };
 
-  const updateQuestion = (index: number, field: keyof Question, value: string | string[]) => {
+  const updateQuestion = (index, field, value) => {
     const newQuestions = [...questions];
     newQuestions[index] = { ...newQuestions[index], [field]: value };
     setQuestions(newQuestions);
   };
 
-  const updateOption = (questionIndex: number, optionIndex: number, value: string) => {
+  const updateOption = (questionIndex, optionIndex, value) => {
     const newQuestions = [...questions];
     newQuestions[questionIndex].options[optionIndex] = value;
     setQuestions(newQuestions);
@@ -105,10 +94,10 @@ const QuizCreator: React.FC<QuizCreatorProps> = ({ open, onClose, onQuizCreated,
       } else {
         onClose();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to save quiz:', error);
-      console.error('Error response:', error.response?.data);
-      alert(`Failed to save quiz: ${error.response?.data?.message || error.message}`);
+      console.error('Error response:', error.response.data);
+      alert(`Failed to save quiz: ${error.response.data.message || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -136,7 +125,7 @@ const QuizCreator: React.FC<QuizCreatorProps> = ({ open, onClose, onQuizCreated,
           </Box>
 
           {questions.map((question, qIndex) => (
-            <Box key={qIndex} sx={{ border: 1, borderColor: 'divider', p: 2, borderRadius: 1 }}>
+            <Box key={qIndex} sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 2, mb: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="subtitle1">Question {qIndex + 1}</Typography>
                 {questions.length > 1 && (

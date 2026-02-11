@@ -6,7 +6,7 @@ import { School, Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 
-const Login: React.FC = () => {
+const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +22,7 @@ const Login: React.FC = () => {
     return !newErrors.username && !newErrors.password;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
@@ -36,9 +36,9 @@ const Login: React.FC = () => {
       
       toast.success('Login successful!');
       navigate('/');
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Login failed');
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (err) {
+      toast.error(err.response.data.message || 'Login failed');
+      setError(err.response.data.message || 'Login failed');
     }
   };
 

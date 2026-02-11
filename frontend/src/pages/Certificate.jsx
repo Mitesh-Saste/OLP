@@ -4,12 +4,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { certificateApi } from '../services/api';
 import { Download } from '@mui/icons-material';
 
-const Certificate: React.FC = () => {
-  const { courseId } = useParams<{ courseId: string }>();
+const Certificate = () => {
+  const { courseId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [certificate, setCertificate] = useState<any>(null);
-  const certificateRef = useRef<HTMLDivElement>(null);
+  const [certificate, setCertificate] = useState(null);
+  const certificateRef = useRef(null);
 
   useEffect(() => {
     if (courseId) {
@@ -19,7 +19,7 @@ const Certificate: React.FC = () => {
 
   const loadCertificate = async () => {
     try {
-      const response = await certificateApi.getCertificate(courseId!);
+      const response = await certificateApi.getCertificate(courseId);
       if (response.data.eligible) {
         setCertificate(response.data);
       } else {
@@ -39,7 +39,7 @@ const Certificate: React.FC = () => {
     if (!certificateRef.current) return;
     
     import('html2canvas').then((html2canvas) => {
-      html2canvas.default(certificateRef.current!, { scale: 2 }).then((canvas) => {
+      html2canvas.default(certificateRef.current, { scale: 2 }).then((canvas) => {
         const link = document.createElement('a');
         link.download = `certificate-${certificate.certificateNumber}.png`;
         link.href = canvas.toDataURL();
@@ -110,7 +110,7 @@ const Certificate: React.FC = () => {
           </Typography>
 
           <Typography variant="body1" sx={{ mb: 2, fontSize: 18 }}>
-            has successfully completed the course
+            h completed the course
           </Typography>
 
           <Typography variant="h4" sx={{ fontWeight: 600, mb: 4 }}>
@@ -138,3 +138,4 @@ const Certificate: React.FC = () => {
 };
 
 export default Certificate;
+

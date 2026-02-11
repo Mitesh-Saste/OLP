@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Container, Grid, Card, CardContent, Typography, Button, TextField, Chip, Box, InputAdornment } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { courseApi } from '../services/api';
-import { Course } from '../types';
 import { Search, LocalOffer, School, Person } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { CourseGridSkeleton } from '../components/LoadingSkeleton';
 
-const CourseCatalog: React.FC = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
+const CourseCatalog = () => {
+  const [courses, setCourses] = useState([]);
   const [tagFilter, setTagFilter] = useState('');
   const [loading, setLoading] = useState(true);
-  const [enrolledCourses, setEnrolledCourses] = useState<Set<string>>(new Set());
+  const [enrolledCourses, setEnrolledCourses] = useState(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,7 +24,7 @@ const CourseCatalog: React.FC = () => {
   const loadEnrolledCourses = async () => {
     try {
       const response = await courseApi.getEnrolledCourses();
-      const enrolled = new Set(response.data.content.map((c: Course) => c.id));
+      const enrolled = new Set(response.data.content.map((c) => c.id));
       setEnrolledCourses(enrolled);
     } catch (error) {
       console.error('Failed to load enrolled courses');
@@ -43,13 +42,13 @@ const CourseCatalog: React.FC = () => {
     }
   };
 
-  const handleEnroll = async (courseId: string) => {
+  const handleEnroll = async (courseId) => {
     try {
       await courseApi.enrollInCourse(courseId);
       toast.success('Enrolled successfully!');
       setEnrolledCourses(prev => new Set(prev).add(courseId));
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Enrollment failed');
+    } catch (error) {
+      toast.error(error.response.data.message || 'Enrollment failed');
     }
   };
 
@@ -94,7 +93,7 @@ const CourseCatalog: React.FC = () => {
                     </Box>
                   )}
                   <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {course.tags?.map((tag) => (
+                    {course.tags.map((tag) => (
                       <Chip key={tag} label={tag} size="small" icon={<LocalOffer sx={{ fontSize: 14 }} />} sx={{ bgcolor: 'primary.50', color: 'primary.main', fontWeight: 500 }} />
                     ))}
                   </Box>

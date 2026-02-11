@@ -14,16 +14,11 @@ import {
   Alert
 } from '@mui/material';
 import { courseApi } from '../services/api';
-import { Course } from '../types';
 import CourseEditor from '../components/CourseEditor';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
 
-function TabPanel(props: TabPanelProps) {
+
+function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
     <div role="tabpanel" hidden={value !== index} {...other}>
@@ -32,11 +27,11 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const AdminPanel: React.FC = () => {
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
+const AdminPanel = () => {
+  const [allCourses, setAllCourses] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [openEditor, setOpenEditor] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [editingCourse, setEditingCourse] = useState(null);
 
   useEffect(() => {
     loadAllCourses();
@@ -51,31 +46,31 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const handlePublishCourse = async (courseId: string, courseTitle: string) => {
+  const handlePublishCourse = async (courseId, courseTitle) => {
     try {
       await courseApi.publishCourse(courseId);
       alert(`Course "${courseTitle}" published successfully!`);
       loadAllCourses();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to publish course:', error);
-      alert(`Failed to publish course: ${error.response?.data?.message || error.message}`);
+      alert(`Failed to publish course: ${error.response.data.message || error.message}`);
     }
   };
 
-  const handleDeleteCourse = async (courseId: string, courseTitle: string) => {
+  const handleDeleteCourse = async (courseId, courseTitle) => {
     if (window.confirm(`Are you sure you want to delete "${courseTitle}"? This will remove all sections, lessons, and student enrollments.`)) {
       try {
         await courseApi.deleteCourse(courseId);
         alert(`Course "${courseTitle}" deleted successfully!`);
         loadAllCourses();
-      } catch (error: any) {
+      } catch (error) {
         console.error('Failed to delete course:', error);
-        alert(`Failed to delete course: ${error.response?.data?.message || error.message}`);
+        alert(`Failed to delete course: ${error.response.data.message || error.message}`);
       }
     }
   };
 
-  const handleEditCourse = (course: Course) => {
+  const handleEditCourse = (course) => {
     setEditingCourse(course);
     setOpenEditor(true);
   };
@@ -89,7 +84,7 @@ const AdminPanel: React.FC = () => {
   const unpublishedCourses = allCourses.filter(course => !course.isPublished);
   const publishedCourses = allCourses.filter(course => course.isPublished);
 
-  const renderCourseCard = (course: Course, showPublish: boolean, showDelete: boolean) => (
+  const renderCourseCard = (course, showPublish, showDelete) => (
     <Grid item xs={12} md={6} key={course.id}>
       <Card>
         <CardContent>

@@ -3,8 +3,8 @@ import { Container, Box, Typography, Card, CardContent, TextField, Button, Avata
 import { Person, PhotoCamera, Lock } from '@mui/icons-material';
 import { profileApi } from '../services/api';
 
-const Profile: React.FC = () => {
-  const [profile, setProfile] = useState<any>(null);
+const Profile = () => {
+  const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '' });
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [message, setMessage] = useState('');
@@ -30,14 +30,14 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
       await profileApi.updateProfile(formData);
       setMessage('Profile updated successfully!');
       loadProfile();
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to update profile');
+    } catch (error) {
+      setError(error.response.data.message || 'Failed to update profile');
     }
   };
 
@@ -54,13 +54,13 @@ const Profile: React.FC = () => {
       setMessage('Password changed successfully!');
       setOpenPasswordDialog(false);
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to change password');
+    } catch (error) {
+      setError(error.response.data.message || 'Failed to change password');
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
     const formData = new FormData();
@@ -151,3 +151,4 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
+
